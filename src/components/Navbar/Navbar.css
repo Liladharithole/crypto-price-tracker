@@ -57,3 +57,41 @@
 .navbar button img {
   width: 13px;
 }
+
+@media (max-width: 900px) {
+  .navbar {
+    padding: 20px 8%;
+  }
+
+  .navbar ul {
+    gap: 20px;
+  }
+
+  .navbar .logo {
+    width: max(15vw, 120px);
+  }
+
+  .nav-right {
+    gap: 10px;
+  }
+
+  .navbar button {
+    gap: 8px;
+    padding: 8px 18px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 760px) {
+  .navbar {
+    padding: 20px 5%;
+  }
+
+  .navbar ul {
+    display: none;
+  }
+
+  .navbar button img {
+    width: 12px;
+  }
+}
