@@ -13,7 +13,7 @@ A real-time cryptocurrency price tracking application built with React and Vite.
 
 - React
 - Vite
-- Tailwind CSS
+- CSS
 - CoinGecko API
 
 ## Getting Started
@@ -36,14 +36,6 @@ npm install
 
 ```bash
 npm run dev
-```
-
-## Environment Variables
-
-Create a `.env` file in the root directory:
-
-```
-VITE_API_KEY=your_api_key_here
 ```
 
 ## Contributing
