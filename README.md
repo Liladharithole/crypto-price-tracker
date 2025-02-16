@@ -1,6 +1,12 @@
 # Crypto Price Tracker
 
-A real-time cryptocurrency price tracking application built with React and Vite.
+A modern cryptocurrency tracking platform that provides real-time price updates and market data for digital assets worldwide. The application leverages the CoinGecko API to deliver accurate and up-to-date cryptocurrency information, complete with interactive price charts and detailed statistics.
+
+Built with React and Vite for optimal performance, the platform features an intuitive user interface designed with Tailwind CSS, ensuring a responsive experience across all devices. Users can easily search, filter, and track their favorite cryptocurrencies while accessing comprehensive market insights.
+
+This full-stack project demonstrates proficiency in modern web technologies, API integration, and responsive design principles, while offering practical utility for cryptocurrency enthusiasts and investors.
+
+Whether you're monitoring Bitcoin's latest movements or analyzing altcoin trends, this tracker provides all the essential tools in one streamlined interface.
 
 ## Features
 
