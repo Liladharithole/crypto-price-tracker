@@ -10,7 +10,9 @@ Whether you're monitoring Bitcoin's latest movements or analyzing altcoin trends
 
 ## Features
 
-- Real-time cryptocurrency price updates
+- Real-time cryptocurrency price updates (refreshes every 10 seconds)
+- Sortable table columns (Price, 24H Change, Market Cap)
+- Favorites list to track your preferred cryptocurrencies
 - Search and filter cryptocurrencies
 - Detailed price charts and statistics
 - Responsive design for mobile and desktop

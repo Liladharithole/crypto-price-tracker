@@ -7,6 +7,12 @@ const Home = () => {
   const { allCoin, currency } = useContext(CoinContext);
   const [displayCoin, setDisplayCoin] = useState([]);
   const [input, setInput] = useState("");
+  const [sortKey, setSortKey] = useState("market_cap_rank"); // Default sort key
+  const [sortOrder, setSortOrder] = useState("asc"); // Default sort order
+  const [favorites, setFavorites] = useState(
+    JSON.parse(localStorage.getItem("favorites")) || []
+  );
+  const [showFavorites, setShowFavorites] = useState(false);
 
   // Input Handler
   const inputHandler = (e) => {
@@ -15,6 +21,7 @@ const Home = () => {
       setDisplayCoin(allCoin);
     }
   };
+
   // Search Handler
   const searchHandler = async (e) => {
     e.preventDefault();
@@ -23,10 +30,45 @@ const Home = () => {
     });
     setDisplayCoin(coins);
   };
-  // UseEffect
+
+  // Sort Handler
+  const handleSort = (key) => {
+    if (sortKey === key) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortKey(key);
+      setSortOrder("asc");
+    }
+  };
+
+  // Toggle Favorites
+  const toggleFavorite = (coinId) => {
+    let updatedFavorites = [...favorites];
+    if (favorites.includes(coinId)) {
+      updatedFavorites = updatedFavorites.filter((id) => id !== coinId);
+    } else {
+      updatedFavorites.push(coinId);
+    }
+    setFavorites(updatedFavorites);
+    localStorage.setItem("favorites", JSON.stringify(updatedFavorites));
+  };
+
+  // UseEffect for sorting and filtering
   useEffect(() => {
-    setDisplayCoin(allCoin);
-  }, [allCoin]);
+    let sortedCoins = [...allCoin];
+    if (showFavorites) {
+      sortedCoins = sortedCoins.filter((coin) => favorites.includes(coin.id));
+    }
+
+    sortedCoins.sort((a, b) => {
+      if (sortOrder === "asc") {
+        return a[sortKey] > b[sortKey] ? 1 : -1;
+      } else {
+        return a[sortKey] < b[sortKey] ? 1 : -1;
+      }
+    });
+    setDisplayCoin(sortedCoins);
+  }, [allCoin, sortKey, sortOrder, showFavorites, favorites]);
 
   return (
     <div className="home">
@@ -57,20 +99,36 @@ const Home = () => {
         </form>
       </div>
       <div className="crypto-table">
+        <button
+          className="favorites-btn"
+          onClick={() => setShowFavorites(!showFavorites)}
+        >
+          {showFavorites ? "Show All" : "Show Favorites"}
+        </button>
         <div className="table-layout">
           <p>#</p>
           <p>coins</p>
-          <p>Price</p>
-          <p style={{ textAlign: "center" }}>24H Change</p>
-          <p className="market-cap">Market Cap</p>
+          <p onClick={() => handleSort("current_price")}>Price</p>
+          <p onClick={() => handleSort("price_change_percentage_24h")} style={{ textAlign: "center" }}>24H Change</p>
+          <p onClick={() => handleSort("market_cap")} className="market-cap">Market Cap</p>
         </div>
 
         {displayCoin.slice(0, 10).map((item, index) => (
-          <Link to={`/coin/${item.id}`} className="table-layout" key={index}>
+          <div className="table-layout" key={index}>
             <p>{item.market_cap_rank}</p>
             <div>
-              <img src={item.image} alt="Bitcoin" />
-              <p>{item.name + "-" + item.symbol}</p>
+              <svg
+                className={`fav-icon ${favorites.includes(item.id) ? "favorited" : ""}`}
+                onClick={() => toggleFavorite(item.id)}
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+              >
+                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+              </svg>
+              <Link to={`/coin/${item.id}`} className="coin-link">
+                <img src={item.image} alt="Bitcoin" />
+                <p>{item.name + "-" + item.symbol}</p>
+              </Link>
             </div>
             <p>
               {currency.symbol}
@@ -85,7 +143,7 @@ const Home = () => {
               {currency.symbol}
               {item.market_cap.toLocaleString()}
             </p>
-          </Link>
+          </div>
         ))}
       </div>
     </div>

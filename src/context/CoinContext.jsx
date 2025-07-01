@@ -8,11 +8,6 @@ export const CoinContextProvider = (props) => {
     name: "usd",
     symbol: "$",
   });
-  // Fetch all coin
-  useEffect(() => {
-    featchAllCoin();
-  }, [currency]);
-  // Fetch all coin
   const featchAllCoin = async () => {
     const options = {
       method: "GET",
@@ -30,6 +25,14 @@ export const CoinContextProvider = (props) => {
       .then((res) => setAllCoin(res))
       .catch((err) => console.error(err));
   };
+
+  useEffect(() => {
+    featchAllCoin();
+    const interval = setInterval(() => {
+      featchAllCoin();
+    }, 10000);
+    return () => clearInterval(interval);
+  }, [currency]);
 
   const contextValue = {
     allCoin,
