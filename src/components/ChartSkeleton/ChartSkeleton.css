@@ -1,0 +1,169 @@
+.chart-skeleton {
+  width: 100%;
+  height: 400px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+.chart-area {
+  flex: 1;
+  display: flex;
+  position: relative;
+}
+
+.y-axis {
+  width: 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding-right: 10px;
+}
+
+.y-label {
+  width: 40px;
+  height: 12px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  border-radius: 4px;
+}
+
+.chart-content {
+  flex: 1;
+  position: relative;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.grid-lines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.grid-line {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.05);
+  width: 100%;
+}
+
+.chart-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.animated-path {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: drawPath 3s ease-out infinite;
+}
+
+.animated-fill {
+  opacity: 0;
+  animation: fadeInFill 3s ease-out infinite;
+  animation-delay: 1s;
+}
+
+.x-axis {
+  height: 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 10px;
+  margin-left: 60px;
+}
+
+.x-label {
+  width: 30px;
+  height: 12px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  border-radius: 4px;
+}
+
+.skeleton-item {
+  animation: shimmer 2s infinite;
+}
+
+/* Dark theme adjustments */
+.dark-theme .y-label,
+.dark-theme .x-label {
+  background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+  background-size: 200% 100%;
+}
+
+.dark-theme .grid-line {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.dark-theme .chart-content {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+/* Animations */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes drawPath {
+  0% {
+    stroke-dashoffset: 1000;
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0.8;
+  }
+}
+
+@keyframes fadeInFill {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0.3;
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .chart-skeleton {
+    height: 300px;
+    padding: 15px;
+  }
+  
+  .y-axis {
+    width: 50px;
+  }
+  
+  .y-label,
+  .x-label {
+    height: 10px;
+  }
+  
+  .x-label {
+    width: 25px;
+  }
+}
