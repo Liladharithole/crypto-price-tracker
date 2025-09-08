@@ -1,0 +1,119 @@
+.error-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  margin: 2rem auto;
+  max-width: 500px;
+  border-radius: 12px;
+  text-align: center;
+  gap: 1.5rem;
+}
+
+.error-display.error {
+  background-color: #ffeaea;
+  border: 2px solid #ff6b6b;
+  color: #d63031;
+}
+
+.error-display.warning {
+  background-color: #fff8e1;
+  border: 2px solid #ffa726;
+  color: #f57c00;
+}
+
+.error-display.info {
+  background-color: #e3f2fd;
+  border: 2px solid #42a5f5;
+  color: #1565c0;
+}
+
+.error-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.error-icon {
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.error-text h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.error-text p {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.5;
+  opacity: 0.9;
+}
+
+.retry-button {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  background-color: var(--primary-color, #007bff);
+  color: white;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.retry-button:hover {
+  background-color: var(--primary-hover, #0056b3);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.retry-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Dark theme adjustments */
+.dark-theme .error-display.error {
+  background-color: #3d2020;
+  border-color: #ff8a80;
+  color: #ff8a80;
+}
+
+.dark-theme .error-display.warning {
+  background-color: #3d3520;
+  border-color: #ffcc80;
+  color: #ffcc80;
+}
+
+.dark-theme .error-display.info {
+  background-color: #203d3d;
+  border-color: #81c784;
+  color: #81c784;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .error-display {
+    margin: 1rem;
+    padding: 1.5rem;
+  }
+  
+  .error-content {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .error-icon {
+    font-size: 1.5rem;
+  }
+  
+  .retry-button {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+  }
+}
