@@ -34,6 +34,16 @@
   
   --transition: all 0.3s ease;
   --transition-fast: all 0.15s ease;
+  
+  /* Footer Variables - Light Theme */
+  --footer-bg: rgba(0, 0, 0, 0.08);
+  --footer-border: rgba(0, 0, 0, 0.12);
+  --footer-text: rgba(0, 0, 0, 0.7);
+  --footer-text-muted: rgba(0, 0, 0, 0.5);
+  --footer-accent: #007bff;
+  --footer-accent-hover: #0056b3;
+  --footer-glow: 0 0 8px rgba(0, 123, 255, 0.2);
+  --footer-glow-hover: 0 0 12px rgba(0, 123, 255, 0.4);
 }
 
 /* Dark Theme Variables */
@@ -64,6 +74,16 @@
   --shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.3);
   --shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, 0.4);
   --shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.5);
+  
+  /* Footer Variables - Dark Theme */
+  --footer-bg: rgba(255, 255, 255, 0.05);
+  --footer-border: rgba(255, 255, 255, 0.1);
+  --footer-text: rgba(255, 255, 255, 0.8);
+  --footer-text-muted: rgba(255, 255, 255, 0.6);
+  --footer-accent: #00d4ff;
+  --footer-accent-hover: #ffffff;
+  --footer-glow: 0 0 10px rgba(0, 212, 255, 0.3);
+  --footer-glow-hover: 0 0 15px rgba(0, 212, 255, 0.6);
 }
 
 /* Global Styles */

@@ -1,10 +1,11 @@
 .footer {
   margin-top: 60px;
   padding: 20px 0;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--footer-bg);
   backdrop-filter: blur(10px);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid var(--footer-border);
   border-radius: 20px 20px 0 0;
+  transition: var(--transition);
 }
 
 .footer-content {
@@ -20,7 +21,7 @@
 .copyright {
   margin: 0;
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--footer-text);
   font-weight: 400;
 }
 
@@ -32,20 +33,21 @@
 }
 
 .made-by {
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--footer-text-muted);
   font-weight: 400;
 }
 
 .creator-name {
-  color: #00d4ff;
+  color: var(--footer-accent);
   font-weight: 600;
-  text-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+  text-shadow: var(--footer-glow);
   transition: all 0.3s ease;
+  cursor: default;
 }
 
 .creator-name:hover {
-  color: #fff;
-  text-shadow: 0 0 15px rgba(0, 212, 255, 0.6);
+  color: var(--footer-accent-hover);
+  text-shadow: var(--footer-glow-hover);
   transform: translateY(-1px);
 }
 
