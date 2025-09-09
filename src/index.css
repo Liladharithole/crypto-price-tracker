@@ -1,4 +1,72 @@
 @import url("https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&family=Rubik:wght@300..900&display=swap");
+
+/* CSS Variables for Theme Support */
+:root {
+  --primary-color: #007bff;
+  --primary-hover: #0056b3;
+  --primary-light: #cce7ff;
+  
+  --success-color: #28a745;
+  --success-light: #d4edda;
+  --danger-color: #dc3545;
+  --danger-light: #f8d7da;
+  --warning-color: #ffc107;
+  --warning-light: #fff3cd;
+  
+  --bg-color: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --bg-tertiary: #e9ecef;
+  --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  
+  --text-primary: #212529;
+  --text-secondary: #6c757d;
+  --text-muted: #868e96;
+  
+  --border-color: #dee2e6;
+  --border-light: #f1f3f4;
+  
+  --shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  --shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.175);
+  
+  --border-radius: 8px;
+  --border-radius-lg: 12px;
+  
+  --transition: all 0.3s ease;
+  --transition-fast: all 0.15s ease;
+}
+
+/* Dark Theme Variables */
+.dark-theme {
+  --primary-color: #0d6efd;
+  --primary-hover: #0b5ed7;
+  --primary-light: #1a365d;
+  
+  --success-color: #198754;
+  --success-light: #1e3a2b;
+  --danger-color: #dc3545;
+  --danger-light: #3a1e1e;
+  --warning-color: #ffc107;
+  --warning-light: #3a3419;
+  
+  --bg-color: #1a1a1a;
+  --bg-secondary: #2d2d2d;
+  --bg-tertiary: #404040;
+  --bg-gradient: linear-gradient(#0b004e, #1d152f, #002834);
+  
+  --text-primary: #ffffff;
+  --text-secondary: #adb5bd;
+  --text-muted: #868e96;
+  
+  --border-color: #404040;
+  --border-light: #343a40;
+  
+  --shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.5);
+}
+
+/* Global Styles */
 * {
   padding: 0;
   margin: 0;
@@ -6,15 +74,133 @@
   font-family: "Outfit", sans-serif;
 }
 
-
-
 a {
   text-decoration: none;
-  color: inherit;
+  color: var(--primary-color);
+  transition: var(--transition-fast);
+}
+
+a:hover {
+  color: var(--primary-hover);
 }
 
 .app {
   min-height: 100vh;
-  color: white;
-  background: linear-gradient(#0b004e, #1d152f, #002834);
+  color: var(--text-primary);
+  background: var(--bg-gradient);
+  transition: var(--transition);
+}
+
+/* Light theme specific app background */
+.light-theme .app {
+  background: var(--bg-color);
+}
+
+/* Utility Classes */
+.text-success {
+  color: var(--success-color) !important;
+}
+
+.text-danger {
+  color: var(--danger-color) !important;
+}
+
+.text-warning {
+  color: var(--warning-color) !important;
+}
+
+.text-primary {
+  color: var(--primary-color) !important;
+}
+
+.text-secondary {
+  color: var(--text-secondary) !important;
+}
+
+.text-muted {
+  color: var(--text-muted) !important;
+}
+
+.bg-success {
+  background-color: var(--success-light) !important;
+}
+
+.bg-danger {
+  background-color: var(--danger-light) !important;
+}
+
+.bg-warning {
+  background-color: var(--warning-light) !important;
+}
+
+.shadow-sm {
+  box-shadow: var(--shadow-sm);
+}
+
+.shadow-md {
+  box-shadow: var(--shadow-md);
+}
+
+.shadow-lg {
+  box-shadow: var(--shadow-lg);
+}
+
+.rounded {
+  border-radius: var(--border-radius);
+}
+
+.rounded-lg {
+  border-radius: var(--border-radius-lg);
+}
+
+/* Animation Classes */
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.slide-up {
+  animation: slideUp 0.5s ease-out;
+}
+
+.pulse {
+  animation: pulse 2s infinite;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
 }

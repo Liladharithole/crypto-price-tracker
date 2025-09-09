@@ -2,12 +2,53 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/public/cryptocurrency.png" />
+    <link rel="icon" type="image/png" href="/cryptocurrency.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Cryptoplace - Liladhar</title>
+    <meta name="description" content="Track real-time cryptocurrency prices, set price alerts, and manage your portfolio with the most comprehensive crypto tracking platform." />
+    <meta name="keywords" content="cryptocurrency, crypto, bitcoin, ethereum, price tracker, portfolio, alerts" />
+    <meta name="author" content="Liladhar Tularamithole" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Crypto Price Tracker - Real-time Cryptocurrency Tracking" />
+    <meta property="og:description" content="Track real-time cryptocurrency prices, set alerts, and manage your portfolio" />
+    <meta property="og:image" content="/cryptocurrency.png" />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:title" content="Crypto Price Tracker - Real-time Cryptocurrency Tracking" />
+    <meta property="twitter:description" content="Track real-time cryptocurrency prices, set alerts, and manage your portfolio" />
+    <meta property="twitter:image" content="/cryptocurrency.png" />
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#007bff" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="CryptoTracker" />
+    <link rel="apple-touch-icon" href="/cryptocurrency.png" />
+    
+    <!-- Manifest -->
+    <link rel="manifest" href="/manifest.json" />
+    
+    <title>Crypto Price Tracker - Real-time Cryptocurrency Tracking</title>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then((registration) => {
+              console.log('SW registered: ', registration);
+            })
+            .catch((registrationError) => {
+              console.log('SW registration failed: ', registrationError);
+            });
+        });
+      }
+    </script>
   </body>
 </html>

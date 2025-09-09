@@ -11,7 +11,6 @@ import {
   Filler,
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
-import chartService from '../../services/chartService';
 
 // Register Chart.js components
 ChartJS.register(
@@ -25,8 +24,35 @@ ChartJS.register(
   Filler
 );
 
-const LineChart = memo(({ historicalData, timeFormat = 'day', timeDimension }) => {
+const LineChart = memo(({ historicalData }) => {
   const [chartData, setChartData] = useState(null);
+
+  // Simple time formatting function
+  const formatTimeLabel = (timestamp, dataLength) => {
+    const date = new Date(timestamp);
+    
+    if (dataLength <= 24) {
+      // Hourly data - show time
+      return date.toLocaleTimeString('en-US', { 
+        hour: '2-digit', 
+        minute: '2-digit', 
+        hour12: false 
+      });
+    } else if (dataLength <= 168) {
+      // Weekly data - show day and time
+      return date.toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric',
+        hour: '2-digit'
+      });
+    } else {
+      // Monthly/yearly data - show date
+      return date.toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric' 
+      });
+    }
+  };
 
   useEffect(() => {
     if (!historicalData?.prices || historicalData.prices.length === 0) {
@@ -36,19 +62,19 @@ const LineChart = memo(({ historicalData, timeFormat = 'day', timeDimension }) =
 
     const labels = [];
     const data = [];
+    const dataLength = historicalData.prices.length;
 
     historicalData.prices.forEach((item, index) => {
       const timestamp = item[0];
       const price = item[1];
       
-      // Use enhanced time formatting from chart service
-      const formattedTime = chartService.formatTimeLabel(timestamp, timeFormat);
+      // Use simple time formatting
+      const formattedTime = formatTimeLabel(timestamp, dataLength);
       
       // For large datasets, show every nth label to avoid crowding
-      const totalPoints = historicalData.prices.length;
-      const skipInterval = Math.max(1, Math.ceil(totalPoints / 12)); // Show ~12 labels max
+      const skipInterval = Math.max(1, Math.ceil(dataLength / 8)); // Show ~8 labels max
       
-      if (totalPoints > 15 && index % skipInterval !== 0) {
+      if (dataLength > 10 && index % skipInterval !== 0) {
         labels.push('');
       } else {
         labels.push(formattedTime);
@@ -76,7 +102,7 @@ const LineChart = memo(({ historicalData, timeFormat = 'day', timeDimension }) =
         },
       ],
     });
-  }, [historicalData, timeFormat]);
+  }, [historicalData]);
 
   const options = {
     responsive: true,

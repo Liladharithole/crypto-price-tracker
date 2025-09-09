@@ -84,12 +84,12 @@ export const CURRENCIES = {
 };
 
 export const CHART_PERIODS = {
-  '1H': { days: 1, interval: 'minutely', points: 60 },
-  '4H': { days: 1, interval: 'hourly', points: 24 },
-  '1D': { days: 1, interval: 'hourly', points: 24 },
-  '7D': { days: 7, interval: 'hourly', points: 168 },
-  '30D': { days: 30, interval: 'daily', points: 30 },
-  '1Y': { days: 365, interval: 'daily', points: 365 },
+  '1H': { days: 1, interval: 'hourly' },
+  '4H': { days: 1, interval: 'hourly' },
+  '1D': { days: 1, interval: 'hourly' },
+  '7D': { days: 7, interval: 'hourly' },
+  '30D': { days: 30, interval: 'daily' },
+  '1Y': { days: 365, interval: 'daily' },
 };
 
 export const REFRESH_INTERVAL = parseInt(import.meta.env.VITE_REFRESH_INTERVAL) || 10000;
