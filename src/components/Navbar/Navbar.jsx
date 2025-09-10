@@ -22,22 +22,33 @@ const Navbar = () => {
   // Check if we're on the home page
   const isHomePage = location.pathname === '/';
 
-  // Scroll detection
+  // Scroll detection with throttling to prevent vibrating
   useEffect(() => {
     let lastScrollY = window.scrollY;
+    let ticking = false;
     
     const handleScroll = () => {
-      const scrollTop = window.scrollY;
-      const scrollingDown = scrollTop > lastScrollY && scrollTop > 100;
-      
-      setIsScrolled(scrollTop > 50);
-      // Only show search on home page when scrolling down
-      setShowSearch(isHomePage && scrollingDown && scrollTop > 200);
-      
-      lastScrollY = scrollTop;
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          const scrollTop = window.scrollY;
+          const scrollingDown = scrollTop > lastScrollY && scrollTop > 100;
+          
+          // Use threshold to prevent frequent changes
+          const isCurrentlyScrolled = scrollTop > 50;
+          const shouldShowSearch = isHomePage && scrollingDown && scrollTop > 200;
+          
+          // Only update state if it actually changed
+          setIsScrolled(prev => prev !== isCurrentlyScrolled ? isCurrentlyScrolled : prev);
+          setShowSearch(prev => prev !== shouldShowSearch ? shouldShowSearch : prev);
+          
+          lastScrollY = scrollTop;
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, [isHomePage]);
 
@@ -102,12 +113,7 @@ const Navbar = () => {
 
   return (
     <>
-      <motion.nav 
-        className={`navbar ${isScrolled ? 'scrolled' : ''}`}
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        transition={{ duration: 0.3 }}
-      >
+      <nav className={`navbar ${isScrolled ? 'scrolled' : ''}`}>
         <div className="nav-content">
           <Link to={"/"} className="nav-logo">
             <span className="logo-text">CryptoTracker</span>
@@ -145,7 +151,7 @@ const Navbar = () => {
             <span className={isMobileMenuOpen ? 'cross' : ''}></span>
           </button>
         </div>
-      </motion.nav>
+      </nav>
 
       {/* Search Bar - appears on scroll down */}
       <AnimatePresence>

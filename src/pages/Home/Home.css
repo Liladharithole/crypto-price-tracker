@@ -455,13 +455,19 @@
   }
   
   .table-layout {
-    grid-template-columns: 40px 2fr 1fr 1fr 1fr;
+    grid-template-columns: 40px 2fr 1fr 1fr;
     padding: 12px 14px;
     gap: 8px;
     font-size: 14px;
   }
   
+  .market-cap,
   .volume {
+    display: none;
+  }
+  
+  /* Hide coin symbols on tablet and mobile */
+  .coin-symbol {
     display: none;
   }
   
@@ -546,7 +552,7 @@
   }
   
   .coin-symbol {
-    font-size: 9px;
+    display: none; /* Hide coin symbols on mobile */
   }
   
   .table-layout img {

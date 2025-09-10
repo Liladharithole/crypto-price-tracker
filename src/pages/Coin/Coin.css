@@ -459,6 +459,11 @@
     font-size: 1.5rem;
   }
   
+  /* Hide coin symbols on mobile */
+  .coin-symbol {
+    display: none;
+  }
+  
   .chart-header {
     flex-direction: column;
     align-items: flex-start;

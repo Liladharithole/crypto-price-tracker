@@ -27,15 +27,25 @@ const Coin = () => {
   const fetchCoinData = async () => {
     try {
       setError(null);
+      
+      // Validate coinId before making request
+      if (!coinId || coinId.trim() === '') {
+        setError('Invalid coin identifier');
+        return;
+      }
+      
       const result = await apiRequest(
         API_ENDPOINTS.COIN_DETAILS(coinId),
-        'fetching coin details'
+        `fetching ${coinId} details`
       );
       
       if (result.error) {
         setError(result.error);
+      } else if (!result || !result.id) {
+        setError('Invalid coin data received');
       } else {
         setCoinData(result);
+        console.log('Coin data loaded successfully:', result.name);
       }
     } catch (err) {
       setError('Failed to fetch coin data');
@@ -50,17 +60,28 @@ const Coin = () => {
         setChartLoading(true);
       }
       
+      // Validate inputs
+      if (!coinId || !currency.name) {
+        console.error('Missing coinId or currency for chart data');
+        return;
+      }
+      
       const periodConfig = CHART_PERIODS[period] || CHART_PERIODS['7D'];
       const result = await apiRequest(
         API_ENDPOINTS.MARKET_CHART(coinId, currency.name, periodConfig.days, periodConfig.interval),
-        `fetching ${period} chart data`,
+        `fetching ${period} chart data for ${coinId}`,
         true
       );
       
-      if (result && !result.error && result.prices) {
-        setHistoricalData(result);
+      if (result && !result.error) {
+        if (result.prices && Array.isArray(result.prices) && result.prices.length > 0) {
+          setHistoricalData(result);
+          console.log(`Chart data loaded for ${period}:`, result.prices.length, 'data points');
+        } else {
+          console.warn('Empty or invalid chart data received:', result);
+        }
       } else {
-        console.error('No chart data received:', result.error);
+        console.error('Chart data error:', result.error || 'Unknown error');
       }
     } catch (err) {
       console.error('Error fetching historical data:', err);
