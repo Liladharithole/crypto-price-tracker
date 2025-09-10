@@ -6,7 +6,7 @@ import LineChart from "../../components/LineChart/LineChart";
 import Loading from "../../components/Loading/Loading";
 import ErrorDisplay from "../../components/ErrorDisplay/ErrorDisplay";
 import ChartSkeleton from "../../components/ChartSkeleton/ChartSkeleton";
-import { apiRequest, API_ENDPOINTS, CHART_PERIODS } from "../../utils/api";
+import { apiRequest, API_ENDPOINTS, CHART_PERIODS, findCoinBySearch } from "../../utils/api";
 import { addAlert } from "../../utils/alerts";
 
 const Coin = () => {
@@ -23,8 +23,8 @@ const Coin = () => {
   const [alertCondition, setAlertCondition] = useState('above');
   const { currency } = useCoin();
 
-  // Fetch Coin Data
-  const fetchCoinData = async () => {
+  // Fetch Coin Data with retry mechanism
+  const fetchCoinData = async (retryCount = 0) => {
     try {
       setError(null);
       
@@ -34,22 +34,73 @@ const Coin = () => {
         return;
       }
       
-      const result = await apiRequest(
+      console.log(`Fetching coin data for: ${coinId} (attempt ${retryCount + 1})`);
+      
+      // Try the main endpoint first
+      let result = await apiRequest(
         API_ENDPOINTS.COIN_DETAILS(coinId),
         `fetching ${coinId} details`
       );
       
+      // If rate limited or network error, try fallback strategies
+      if (result.error && retryCount === 0) {
+        console.log(`First attempt failed for ${coinId}, trying fallback strategies...`);
+        
+        // Wait a bit before retry
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Strategy 1: Try with limited parameters to reduce response size
+        result = await apiRequest(
+          `${API_ENDPOINTS.COIN_DETAILS(coinId)}?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false`,
+          `fetching ${coinId} details (retry with params)`
+        );
+        
+        // Strategy 2: If still failing, try to find the coin through search
+        if (result.error) {
+          console.log(`Direct API still failing for ${coinId}, trying search fallback...`);
+          
+          try {
+            const searchResult = await findCoinBySearch(coinId);
+            if (searchResult && searchResult.id) {
+              console.log(`Found ${coinId} via search: ${searchResult.id}`);
+              
+              // If search found a different ID, try that
+              if (searchResult.id !== coinId) {
+                result = await apiRequest(
+                  `${API_ENDPOINTS.COIN_DETAILS(searchResult.id)}?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false`,
+                  `fetching ${searchResult.id} details (from search)`
+                );
+              }
+            }
+          } catch (searchError) {
+            console.warn('Search fallback failed:', searchError);
+          }
+        }
+      }
+      
+      // Handle final result
       if (result.error) {
-        setError(result.error);
+        console.error(`API error for ${coinId}:`, result.error);
+        
+        // Provide more specific error messages
+        if (result.error.includes('Rate limit')) {
+          setError('Too many requests. Please wait a moment and try again.');
+        } else if (result.error.includes('not found')) {
+          setError(`Cryptocurrency "${coinId}" was not found. It may have been delisted or the ID may have changed.`);
+        } else if (result.error.includes('Network error')) {
+          setError('Unable to connect to the cryptocurrency data service. Please check your internet connection and try again.');
+        } else {
+          setError(result.error);
+        }
       } else if (!result || !result.id) {
-        setError('Invalid coin data received');
+        setError(`No data available for "${coinId}". This cryptocurrency may not exist or may have been delisted.`);
       } else {
         setCoinData(result);
-        console.log('Coin data loaded successfully:', result.name);
+        console.log('Coin data loaded successfully:', result.name || coinId);
       }
     } catch (err) {
-      setError('Failed to fetch coin data');
-      console.error('Error fetching coin data:', err);
+      console.error('Exception while fetching coin data:', err);
+      setError('An unexpected error occurred while loading cryptocurrency data. Please try again.');
     }
   };
 

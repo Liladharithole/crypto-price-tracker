@@ -3,6 +3,7 @@ import apiCache from './cache';
 
 const API_KEY = import.meta.env.VITE_COINGECKO_API_KEY;
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://api.coingecko.com/api/v3';
+const DEBUG_API = import.meta.env.MODE === 'development';
 
 // API Headers
 const getHeaders = () => {
@@ -24,8 +25,13 @@ export const handleApiError = (error, operation = 'API operation') => {
   console.error(`Error during ${operation}:`, error);
   
   // Network/connection errors
-  if (error.name === 'TypeError' && error.message.includes('fetch')) {
+  if (error.name === 'TypeError' && (error.message.includes('fetch') || error.message.includes('Failed to fetch'))) {
     return { error: 'Network error. Please check your internet connection.' };
+  }
+  
+  // DNS/connection issues
+  if (error.name === 'TypeError' && error.message.includes('NetworkError')) {
+    return { error: 'Unable to connect to cryptocurrency data service.' };
   }
   
   // CORS errors
@@ -61,6 +67,10 @@ export const handleApiError = (error, operation = 'API operation') => {
   return { error: 'Something went wrong. Please try again.' };
 };
 
+// Request throttling to prevent rate limiting
+let lastRequestTime = 0;
+const MIN_REQUEST_INTERVAL = 100; // Minimum 100ms between requests
+
 // Generic fetch wrapper with error handling and caching
 export const apiRequest = async (url, operation = 'request', useCache = true) => {
   // Check cache first
@@ -73,7 +83,19 @@ export const apiRequest = async (url, operation = 'request', useCache = true) =>
     }
   }
 
-  console.log(`Making API request for ${operation}:`, url);
+  // Throttle requests to prevent rate limiting
+  const now = Date.now();
+  const timeSinceLastRequest = now - lastRequestTime;
+  if (timeSinceLastRequest < MIN_REQUEST_INTERVAL) {
+    await new Promise(resolve => setTimeout(resolve, MIN_REQUEST_INTERVAL - timeSinceLastRequest));
+  }
+  lastRequestTime = Date.now();
+
+  if (DEBUG_API) {
+    console.log(`🔄 Making API request for ${operation}:`, url);
+    console.log('🔑 API Key present:', !!API_KEY);
+    console.log('📋 Headers:', getHeaders());
+  }
 
   try {
     // Create AbortController for timeout
@@ -88,6 +110,10 @@ export const apiRequest = async (url, operation = 'request', useCache = true) =>
     
     clearTimeout(timeoutId);
     
+    if (DEBUG_API) {
+      console.log(`✅ Response status: ${response.status} for ${operation}`);
+    }
+    
     if (!response.ok) {
       const error = new Error(`HTTP error! status: ${response.status}`);
       error.status = response.status;
@@ -95,9 +121,16 @@ export const apiRequest = async (url, operation = 'request', useCache = true) =>
       // Try to get error details from response
       try {
         const errorData = await response.json();
-        error.message = errorData.error || error.message;
+        error.message = errorData.error || errorData.message || error.message;
+        
+        if (DEBUG_API) {
+          console.error(`❌ API Error Response:`, errorData);
+        }
       } catch {
         // Ignore JSON parsing errors for error responses
+        if (DEBUG_API) {
+          console.error(`❌ Could not parse error response for status ${response.status}`);
+        }
       }
       
       throw error;
@@ -133,10 +166,30 @@ export const apiRequest = async (url, operation = 'request', useCache = true) =>
 export const API_ENDPOINTS = {
   MARKETS: (currency) => `${BASE_URL}/coins/markets?vs_currency=${currency}`,
   COIN_DETAILS: (coinId) => `${BASE_URL}/coins/${coinId}`,
+  COIN_SEARCH: (query) => `${BASE_URL}/search?query=${encodeURIComponent(query)}`,
   MARKET_CHART: (coinId, currency, days, interval = 'daily') => 
     `${BASE_URL}/coins/${coinId}/market_chart?vs_currency=${currency}&days=${days}&interval=${interval}`,
   TRENDING: `${BASE_URL}/search/trending`,
   GLOBAL: `${BASE_URL}/global`,
+};
+
+// Helper function to find coin by search if direct lookup fails
+export const findCoinBySearch = async (coinId) => {
+  try {
+    const searchResult = await apiRequest(API_ENDPOINTS.COIN_SEARCH(coinId), `searching for ${coinId}`);
+    if (searchResult && searchResult.coins && searchResult.coins.length > 0) {
+      // Find exact match first, otherwise return the first result
+      const exactMatch = searchResult.coins.find(coin => 
+        coin.id === coinId || 
+        coin.symbol.toLowerCase() === coinId.toLowerCase() ||
+        coin.name.toLowerCase() === coinId.toLowerCase()
+      );
+      return exactMatch || searchResult.coins[0];
+    }
+  } catch (error) {
+    console.warn('Search fallback failed:', error);
+  }
+  return null;
 };
 
 // Constants
