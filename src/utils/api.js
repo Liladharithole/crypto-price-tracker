@@ -3,7 +3,15 @@ import apiCache from './cache';
 
 const API_KEY = import.meta.env.VITE_COINGECKO_API_KEY;
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://api.coingecko.com/api/v3';
-const DEBUG_API = import.meta.env.MODE === 'development';
+const DEBUG_API = import.meta.env.MODE === 'development' || import.meta.env.VITE_DEBUG_API === 'true';
+
+// Add production debugging
+if (import.meta.env.PROD) {
+  console.log('🚀 Production API Configuration:');
+  console.log('📍 Base URL:', BASE_URL);
+  console.log('🔑 API Key configured:', !!API_KEY && API_KEY !== 'your_coingecko_api_key_here');
+  console.log('🐛 Debug mode:', DEBUG_API);
+}
 
 // API Headers
 const getHeaders = () => {
