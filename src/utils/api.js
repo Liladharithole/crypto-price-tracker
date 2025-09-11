@@ -30,49 +30,68 @@ const getHeaders = () => {
 
 // Error handling utility
 export const handleApiError = (error, operation = 'API operation') => {
-  console.error(`Error during ${operation}:`, error);
-  
-  // Network/connection errors
-  if (error.name === 'TypeError' && (error.message.includes('fetch') || error.message.includes('Failed to fetch'))) {
-    return { error: 'Network error. Please check your internet connection.' };
+  // Always log in production for debugging
+  if (import.meta.env.PROD || DEBUG_API) {
+    console.error(`❌ Error during ${operation}:`, {
+      name: error.name,
+      message: error.message,
+      status: error.status,
+      stack: error.stack
+    });
   }
   
-  // DNS/connection issues
-  if (error.name === 'TypeError' && error.message.includes('NetworkError')) {
-    return { error: 'Unable to connect to cryptocurrency data service.' };
-  }
-  
-  // CORS errors
-  if (error.name === 'TypeError' && error.message.includes('cors')) {
-    return { error: 'Unable to connect to CoinGecko API. Please try again later.' };
-  }
-  
-  // Rate limiting
+  // Rate limiting (check first as it's most specific)
   if (error.status === 429) {
-    return { error: 'Rate limit exceeded. Please try again in a few minutes.' };
+    return { error: 'Too many requests. Please wait a moment and try again.' };
   }
   
   // Authentication errors
   if (error.status === 401 || error.status === 403) {
-    return { error: 'API authentication error. Please check your API key.' };
+    return { error: 'API access denied. Please try again later.' };
   }
   
   // Not found errors
   if (error.status === 404) {
-    return { error: 'Requested cryptocurrency data not found.' };
+    return { error: 'Requested data not found.' };
   }
   
   // Server errors
   if (error.status >= 500) {
-    return { error: 'CoinGecko server error. Please try again later.' };
+    return { error: 'Service temporarily unavailable. Please try again.' };
   }
   
   // Bad request errors
   if (error.status >= 400) {
-    return { error: `Invalid request: ${error.message || 'Bad request'}` };
+    return { error: `Request failed: ${error.message || 'Invalid request'}` };
   }
   
-  return { error: 'Something went wrong. Please try again.' };
+  // Network/connection errors (more specific checks)
+  if (error.name === 'TypeError') {
+    // CORS errors
+    if (error.message.toLowerCase().includes('cors')) {
+      return { error: 'Unable to access cryptocurrency data. Please try again.' };
+    }
+    
+    // Network errors
+    if (error.message.includes('Failed to fetch') || 
+        error.message.includes('fetch') ||
+        error.message.includes('NetworkError')) {
+      return { error: 'Unable to connect to data service. Please check your connection and try again.' };
+    }
+    
+    // SSL/TLS errors
+    if (error.message.toLowerCase().includes('ssl') || 
+        error.message.toLowerCase().includes('certificate')) {
+      return { error: 'Secure connection failed. Please try again.' };
+    }
+  }
+  
+  // DNS resolution errors
+  if (error.code === 'ENOTFOUND' || error.code === 'ECONNREFUSED') {
+    return { error: 'Unable to reach cryptocurrency data service.' };
+  }
+  
+  return { error: 'Service temporarily unavailable. Please try again.' };
 };
 
 // Request throttling to prevent rate limiting
@@ -86,7 +105,9 @@ export const apiRequest = async (url, operation = 'request', useCache = true) =>
     const cacheKey = apiCache.generateKey(url);
     const cachedData = apiCache.get(cacheKey);
     if (cachedData) {
-      console.log(`Cache hit for ${operation}:`, url);
+      if (DEBUG_API) {
+        console.log(`📦 Cache hit for ${operation}:`, url);
+      }
       return cachedData;
     }
   }
@@ -99,22 +120,43 @@ export const apiRequest = async (url, operation = 'request', useCache = true) =>
   }
   lastRequestTime = Date.now();
 
-  if (DEBUG_API) {
+  if (DEBUG_API || import.meta.env.PROD) {
     console.log(`🔄 Making API request for ${operation}:`, url);
-    console.log('🔑 API Key present:', !!API_KEY);
-    console.log('📋 Headers:', getHeaders());
+    console.log('🔑 API Key present:', !!API_KEY && API_KEY !== 'your_coingecko_api_key_here');
+    if (DEBUG_API) {
+      console.log('📋 Headers:', getHeaders());
+    }
   }
 
   try {
     // Create AbortController for timeout
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+    const timeoutDuration = import.meta.env.PROD ? 15000 : 10000; // Longer timeout in production
+    const timeoutId = setTimeout(() => controller.abort(), timeoutDuration);
 
-    const response = await fetch(url, {
+    // Enhanced fetch configuration for production
+    const fetchConfig = {
       method: 'GET',
       headers: getHeaders(),
       signal: controller.signal,
-    });
+      // Add additional configurations for better reliability
+      mode: 'cors',
+      credentials: 'omit',
+      redirect: 'follow',
+      referrerPolicy: 'no-referrer',
+    };
+
+    if (DEBUG_API || import.meta.env.PROD) {
+      console.log('🚀 Fetch config:', {
+        url,
+        method: fetchConfig.method,
+        mode: fetchConfig.mode,
+        headers: Object.keys(fetchConfig.headers),
+        timeout: timeoutDuration + 'ms'
+      });
+    }
+
+    const response = await fetch(url, fetchConfig);
     
     clearTimeout(timeoutId);
     
@@ -217,3 +259,42 @@ export const CHART_PERIODS = {
 };
 
 export const REFRESH_INTERVAL = parseInt(import.meta.env.VITE_REFRESH_INTERVAL) || 10000;
+
+// API Test function for debugging
+export const testApiConnection = async () => {
+  console.log('🧪 Testing API connection...');
+  
+  try {
+    // Test with a simple, lightweight endpoint
+    const result = await apiRequest(
+      `${BASE_URL}/ping`, 
+      'API connectivity test',
+      false // Don't cache test requests
+    );
+    
+    if (result && !result.error) {
+      console.log('✅ API connection successful');
+      return true;
+    } else {
+      console.warn('⚠️ API ping failed, trying markets endpoint...');
+      
+      // Fallback test with markets endpoint
+      const marketsResult = await apiRequest(
+        API_ENDPOINTS.MARKETS('usd') + '&per_page=1',
+        'API markets test',
+        false
+      );
+      
+      if (marketsResult && !marketsResult.error && Array.isArray(marketsResult)) {
+        console.log('✅ API connection successful (via markets)');
+        return true;
+      }
+    }
+    
+    console.error('❌ API connection failed');
+    return false;
+  } catch (error) {
+    console.error('❌ API test failed:', error);
+    return false;
+  }
+};

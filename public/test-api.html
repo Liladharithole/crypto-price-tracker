@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 40px; 
+            background-color: #f5f5f5; 
+        }
+        .container { 
+            max-width: 600px; 
+            margin: 0 auto; 
+            background: white; 
+            padding: 20px; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+        }
+        .result { 
+            margin: 10px 0; 
+            padding: 10px; 
+            border-radius: 4px; 
+            border-left: 4px solid #ccc; 
+        }
+        .success { border-left-color: #4CAF50; background-color: #E8F5E8; }
+        .error { border-left-color: #f44336; background-color: #FFEBEE; }
+        .info { border-left-color: #2196F3; background-color: #E3F2FD; }
+        button { 
+            background-color: #007bff; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            margin: 5px; 
+        }
+        button:hover { background-color: #0056b3; }
+        pre { background-color: #f8f9fa; padding: 10px; border-radius: 4px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 CoinGecko API Test</h1>
+        <p>This page tests direct connectivity to the CoinGecko API from your browser.</p>
+        
+        <div>
+            <button onclick="testPing()">Test Ping</button>
+            <button onclick="testMarkets()">Test Markets</button>
+            <button onclick="testBitcoin()">Test Bitcoin Data</button>
+            <button onclick="clearResults()">Clear Results</button>
+        </div>
+        
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const API_KEY = 'CG-WudDKPBseqAyu9xczCwpi6JE';
+        const BASE_URL = 'https://api.coingecko.com/api/v3';
+        
+        function addResult(type, message, data = null) {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            
+            let content = `<strong>${new Date().toLocaleTimeString()}</strong> - ${message}`;
+            if (data) {
+                content += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            }
+            
+            div.innerHTML = content;
+            results.appendChild(div);
+            results.scrollTop = results.scrollHeight;
+        }
+        
+        function getHeaders() {
+            const headers = {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            };
+            
+            if (API_KEY && API_KEY.trim() !== '' && API_KEY !== 'your_coingecko_api_key_here') {
+                headers['x-cg-demo-api-key'] = API_KEY;
+            }
+            
+            return headers;
+        }
+        
+        async function makeRequest(url, description) {
+            addResult('info', `Testing: ${description}`);
+            addResult('info', `URL: ${url}`);
+            
+            try {
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: getHeaders(),
+                    mode: 'cors',
+                    credentials: 'omit',
+                });
+                
+                addResult('info', `Response Status: ${response.status} ${response.statusText}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                addResult('success', `✅ ${description} - SUCCESS`, data);
+                return data;
+            } catch (error) {
+                addResult('error', `❌ ${description} - FAILED: ${error.message}`, {
+                    error: error.message,
+                    name: error.name,
+                    stack: error.stack
+                });
+                throw error;
+            }
+        }
+        
+        async function testPing() {
+            try {
+                await makeRequest(`${BASE_URL}/ping`, 'API Ping Test');
+            } catch (error) {
+                // Ping might not exist, that's ok
+                addResult('info', 'Ping endpoint may not exist - this is normal');
+            }
+        }
+        
+        async function testMarkets() {
+            try {
+                await makeRequest(`${BASE_URL}/coins/markets?vs_currency=usd&per_page=3`, 'Markets Test (3 coins)');
+            } catch (error) {
+                console.error('Markets test failed:', error);
+            }
+        }
+        
+        async function testBitcoin() {
+            try {
+                await makeRequest(`${BASE_URL}/coins/bitcoin`, 'Bitcoin Data Test');
+            } catch (error) {
+                console.error('Bitcoin test failed:', error);
+            }
+        }
+        
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+        
+        // Auto-test on load
+        window.addEventListener('load', () => {
+            addResult('info', '🚀 Page loaded - API Key configured: ' + (!!API_KEY && API_KEY !== 'your_coingecko_api_key_here'));
+            addResult('info', '🌐 Base URL: ' + BASE_URL);
+        });
+    </script>
+</body>
+</html>

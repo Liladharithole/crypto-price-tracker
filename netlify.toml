@@ -7,6 +7,7 @@
   VITE_API_BASE_URL = "https://api.coingecko.com/api/v3"
   VITE_APP_TITLE = "Crypto Price Tracker"
   VITE_REFRESH_INTERVAL = "10000"
+  VITE_DEBUG_API = "true"
   # Configure secrets scanning for client-side environment variables
   # These are intentionally public, rate-limited API credentials for client use
   SECRETS_SCAN_ENABLED = "false"
@@ -54,27 +55,84 @@
     Content-Type = "font/woff"
     Cache-Control = "public, max-age=31536000, immutable"
 
-# Serve static assets before SPA redirect
+# Force specific MIME types for critical files
 [[redirects]]
-  from = "/assets/*"
-  to = "/assets/:splat"
+  from = "/src/main.jsx"
+  to = "/src/main.jsx"
   status = 200
+  force = true
   headers = {Content-Type = "text/javascript; charset=utf-8"}
 
+# Serve Vite assets with correct MIME types
+[[redirects]]
+  from = "/assets/*.js"
+  to = "/assets/:splat.js"
+  status = 200
+  force = true
+  headers = {Content-Type = "text/javascript; charset=utf-8"}
+
+[[redirects]]
+  from = "/assets/*.mjs"
+  to = "/assets/:splat.mjs"
+  status = 200
+  force = true
+  headers = {Content-Type = "text/javascript; charset=utf-8"}
+
+[[redirects]]
+  from = "/assets/*.css"
+  to = "/assets/:splat.css"
+  status = 200
+  force = true
+  headers = {Content-Type = "text/css; charset=utf-8"}
+
+# Serve all JavaScript files with correct MIME type (catch-all for JS)
 [[redirects]]
   from = "/*.js"
   to = "/:splat.js"
   status = 200
+  force = true
   headers = {Content-Type = "text/javascript; charset=utf-8"}
 
+[[redirects]]
+  from = "/*.mjs"
+  to = "/:splat.mjs"
+  status = 200
+  force = true
+  headers = {Content-Type = "text/javascript; charset=utf-8"}
+
+# Serve CSS files
 [[redirects]]
   from = "/*.css"
   to = "/:splat.css"
   status = 200
+  force = true
   headers = {Content-Type = "text/css; charset=utf-8"}
 
-# Redirect all other requests to index.html for client-side routing (must be last)
+# Serve other static assets
+[[redirects]]
+  from = "/*.json"
+  to = "/:splat.json"
+  status = 200
+  force = true
+  headers = {Content-Type = "application/json; charset=utf-8"}
+
+[[redirects]]
+  from = "/*.png"
+  to = "/:splat.png"
+  status = 200
+  force = true
+  headers = {Content-Type = "image/png"}
+
+[[redirects]]
+  from = "/*.ico"
+  to = "/:splat.ico"
+  status = 200
+  force = true
+  headers = {Content-Type = "image/x-icon"}
+
+# SPA fallback - this MUST be last and should NOT be forced
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+  conditions = {Role = ["*"], Country = ["*"]}

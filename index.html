@@ -35,11 +35,26 @@
   </head>
   <body>
     <div id="root"></div>
+    
+    <!-- Debug script for troubleshooting deployment issues -->
+    <script src="/debug.js"></script>
+    
     <script type="module" src="/src/main.jsx"></script>
     
-    <!-- Service Worker Registration -->
+    <!-- Service Worker Registration - Temporarily Disabled -->
     <script>
+      // Temporarily disable service worker to fix module loading issues
       if ('serviceWorker' in navigator) {
+        // Unregister any existing service workers
+        navigator.serviceWorker.getRegistrations().then(function(registrations) {
+          for(let registration of registrations) {
+            registration.unregister();
+            console.log('SW unregistered:', registration.scope);
+          }
+        });
+        
+        /* 
+        // Re-enable this once module loading is fixed
         window.addEventListener('load', () => {
           navigator.serviceWorker.register('/sw.js')
             .then((registration) => {
@@ -49,6 +64,7 @@
               console.log('SW registration failed: ', registrationError);
             });
         });
+        */
       }
     </script>
   </body>
